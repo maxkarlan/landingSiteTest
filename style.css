@@ -163,7 +163,10 @@ a {
     min-height: 100vh;
     display: flex;
     align-items: center;
-    padding-top: 80px;
+    padding-top: 100px;
+    /* 80px nav + 20px gap */
+    padding-bottom: 20px;
+    /* Buffer for trust bar / window bottom */
     position: relative;
 }
 
@@ -211,7 +214,9 @@ a {
 
 /* Hero Visual Container */
 .hero-visual-container {
-    height: 700px;
+    height: calc(100vh - 120px);
+    /* Starts at 100px, ends at 100vh - 20px */
+    min-height: 500px;
     background: var(--theme-color-bg-1);
     border: 1px solid var(--theme-color-border-1);
     border-radius: var(--radius-md);
@@ -301,27 +306,37 @@ a {
 
 /* 1. Text Block - Blue */
 .card-text {
-    background-color: #3B82F6;
+    /* background-color: #3B82F6; */
+    /* background-color: #8A936A; */
+    background-color: #bd8787;
 }
 
 /* 2. Image Block - Red */
 .card-image {
-    background-color: #EF4444;
+    /* background-color: #EF4444; */
+    /* background-color: #CB8D30; */
+    background-color: #cc9c52;
 }
 
 /* 3. Listed Block - Yellow */
 .card-listed {
-    background-color: #EAB308;
+    /* background-color: #EAB308; */
+    /* background-color: #144357; */
+    background-color: #7a8f76;
 }
 
 /* 4. Video Block - Green */
 .card-video {
-    background-color: #22C55E;
+    /* background-color: #22C55E; */
+    /* background-color: #6C0A00; */
+    background-color: #637a8a;
 }
 
 /* 5. Tweet Block - Purple */
 .card-tweet-embed {
-    background-color: #A855F7;
+    /* background-color: #A855F7; */
+    /* background-color: #602E5B; */
+    background-color: #967bb6;
 }
 
 
