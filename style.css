@@ -507,7 +507,7 @@ a {
 
 footer {
     border-top: 1px solid var(--theme-color-border-1);
-    padding: var(--space-xl) 0;
+    padding: var(--space-lg) 0;
     background: var(--theme-color-bg-1);
 }
 
