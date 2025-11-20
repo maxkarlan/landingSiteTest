@@ -351,7 +351,7 @@ a {
 .trust-grid {
     display: flex;
     justify-content: space-between;
-    opacity: 0.5;
+    opacity: 1;
     filter: grayscale(100%);
 }
 
@@ -378,6 +378,7 @@ a {
     gap: 1px;
     background: var(--theme-color-border-1);
     border: 1px solid var(--theme-color-border-1);
+    margin-bottom: var(--space-xs);
 }
 
 .bento-item {
@@ -423,8 +424,9 @@ a {
 
 /* FAQ Section */
 .faq-section {
-    padding: var(--space-xl) 0;
+    padding: var(--space-md) 0;
     background: var(--theme-color-bg-0);
+    margin-bottom: var(--space-lg);
 }
 
 .faq-grid {
