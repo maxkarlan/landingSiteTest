@@ -391,6 +391,105 @@ a {
     font-weight: 400;
 }
 
+/* Logo Text */
+.logo {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+.logo-text {
+    font-family: var(--font-serif);
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--theme-color-text-0);
+    letter-spacing: -0.02em;
+}
+
+/* FAQ Section */
+.faq-section {
+    padding: var(--space-xl) 0;
+    background: var(--theme-color-bg-0);
+}
+
+.faq-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-lg);
+}
+
+.faq-item h4 {
+    font-family: var(--font-serif);
+    font-size: 1.2rem;
+    margin-bottom: var(--space-xs);
+    color: var(--theme-color-text-0);
+}
+
+.faq-item p {
+    color: var(--theme-color-text-1);
+    font-size: 0.95rem;
+}
+
+/* Waitlist Section */
+.waitlist-section {
+    padding: var(--space-xl) 0;
+    background: var(--theme-color-bg-1);
+    border-top: 1px solid var(--theme-color-border-1);
+    text-align: center;
+}
+
+.waitlist-content {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.waitlist-content h2 {
+    font-family: var(--font-serif);
+    font-size: 2.5rem;
+    margin-bottom: var(--space-sm);
+}
+
+.waitlist-content p {
+    color: var(--theme-color-text-1);
+    margin-bottom: var(--space-md);
+}
+
+.waitlist-form {
+    display: flex;
+    gap: var(--space-sm);
+    justify-content: center;
+}
+
+.waitlist-form input {
+    padding: 0.8rem 1.2rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--theme-color-border-2);
+    background: var(--theme-color-bg-0);
+    color: var(--theme-color-text-0);
+    font-family: var(--font-sans);
+    min-width: 300px;
+}
+
+.waitlist-form input:focus {
+    outline: none;
+    border-color: var(--theme-color-accent);
+}
+
+@media (max-width: 768px) {
+    .faq-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .waitlist-form {
+        flex-direction: column;
+    }
+
+    .waitlist-form input {
+        width: 100%;
+        min-width: auto;
+    }
+}
+
 footer {
     border-top: 1px solid var(--theme-color-border-1);
     padding: var(--space-xl) 0;
@@ -407,6 +506,24 @@ footer {
     margin-top: var(--space-sm);
     color: var(--theme-color-text-1);
     max-width: 300px;
+    margin-bottom: var(--space-md);
+}
+
+.social-links {
+    display: flex;
+    gap: var(--space-sm);
+}
+
+.social-icon {
+    color: var(--theme-color-text-1);
+    transition: color 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.social-icon:hover {
+    color: var(--theme-color-accent);
 }
 
 .footer-col h4 {

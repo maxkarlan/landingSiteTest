@@ -115,13 +115,34 @@ if (canvasContainer && cards.length > 0) {
         currentInventory = inventories[Math.floor(Math.random() * inventories.length)];
         setCardShapes(currentInventory);
 
-        cards.forEach((card) => {
-            const randomTop = Math.random() * 60 + 10;
-            const randomLeft = Math.random() * 60 + 10;
+        // Define 5 zones to ensure distribution (Top-Left, Top-Right, Bottom-Left, Bottom-Right, Center)
+        // Using percentages. Safe buffer is roughly 20% from edges.
+        const zones = [
+            { x: 25, y: 25 }, // TL
+            { x: 75, y: 25 }, // TR
+            { x: 25, y: 75 }, // BL
+            { x: 75, y: 75 }, // BR
+            { x: 50, y: 50 }  // Center
+        ];
+
+        // Shuffle zones
+        const shuffledZones = zones.sort(() => Math.random() - 0.5);
+
+        cards.forEach((card, i) => {
+            // Assign card to a zone
+            const zone = shuffledZones[i % shuffledZones.length];
+
+            // Add random jitter (+/- 10%)
+            const jitterX = (Math.random() * 20) - 10;
+            const jitterY = (Math.random() * 20) - 10;
+
+            const finalX = zone.x + jitterX;
+            const finalY = zone.y + jitterY;
+
             const randomRotate = Math.random() * 40 - 20;
 
-            card.style.top = `${randomTop}%`;
-            card.style.left = `${randomLeft}%`;
+            card.style.top = `${finalY}%`;
+            card.style.left = `${finalX}%`;
             card.style.transform = `translate(-50%, -50%) rotate(${randomRotate}deg)`;
             card.style.zIndex = Math.floor(Math.random() * 10);
         });
@@ -145,12 +166,46 @@ if (canvasContainer && cards.length > 0) {
             cardsByShape[key].sort(() => Math.random() - 0.5);
         }
 
+        // Shape dimensions for bounding box calculation
+        const shapeDims = {
+            'shape-square': { w: 100, h: 100 },
+            'shape-wide': { w: 210, h: 100 },
+            'shape-tall': { w: 100, h: 210 },
+            'shape-big': { w: 210, h: 210 }
+        };
+
+        // Calculate visual bounding box of the layout (using Top-Left coordinates)
+        let minLeft = Infinity, maxRight = -Infinity, minTop = Infinity, maxBottom = -Infinity;
+
+        currentInventory.layout.forEach(slot => {
+            const dims = shapeDims[slot.shape];
+            // Coordinates are Top-Left based in the original system
+            const left = slot.x * (UNIT + GAP);
+            const top = slot.y * (UNIT + GAP);
+            const right = left + dims.w;
+            const bottom = top + dims.h;
+
+            if (left < minLeft) minLeft = left;
+            if (right > maxRight) maxRight = right;
+            if (top < minTop) minTop = top;
+            if (bottom > maxBottom) maxBottom = bottom;
+        });
+
+        // Calculate the center of the bounding box
+        const visualCenterX = (minLeft + maxRight) / 2;
+        const visualCenterY = (minTop + maxBottom) / 2;
+
         currentInventory.layout.forEach(slot => {
             const card = cardsByShape[slot.shape].pop();
             if (card) {
-                const pos = getPos(slot.x, slot.y);
-                card.style.left = pos.left;
-                card.style.top = pos.top;
+                // Calculate position relative to center
+                // We want the card's Top-Left to be shifted so that the BoundingBox Center aligns with (0,0)
+                const targetX = (slot.x * (UNIT + GAP)) - visualCenterX;
+                const targetY = (slot.y * (UNIT + GAP)) - visualCenterY;
+
+                card.style.left = `calc(50% + ${targetX}px)`;
+                card.style.top = `calc(50% + ${targetY}px)`;
+                // Revert to translate(0,0) to match Top-Left anchoring
                 card.style.transform = `translate(0, 0) rotate(0deg)`;
                 card.style.zIndex = 20;
             }
