@@ -507,7 +507,7 @@ a {
 
 footer {
     border-top: 1px solid var(--theme-color-border-1);
-    padding: var(--space-lg) 0;
+    padding: var(--space-md) 0;
     background: var(--theme-color-bg-1);
 }
 
@@ -535,6 +535,7 @@ footer {
     display: flex;
     align-items: center;
     justify-content: center;
+    margin-bottom: var(--space-md);
 }
 
 .social-icon:hover {
@@ -564,6 +565,13 @@ footer {
 
 .footer-col a:hover {
     color: var(--theme-color-accent);
+}
+
+.copyright {
+    margin-top: var(--space-lg);
+    font-size: .8rem;
+    color: var(--theme-color-text-2);
+    font-family: var(--font-mono);
 }
 
 @media (max-width: 1024px) {
