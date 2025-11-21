@@ -267,11 +267,11 @@ a {
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
 
     /* Smooth transition for puzzle movement AND resizing */
-    transition: top 0.6s cubic-bezier(0.2, 0.8, 0.2, 1),
-        left 0.6s cubic-bezier(0.2, 0.8, 0.2, 1),
-        width 0.6s cubic-bezier(0.2, 0.8, 0.2, 1),
-        height 0.6s cubic-bezier(0.2, 0.8, 0.2, 1),
-        transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+    transition: top 0.8s cubic-bezier(0.2, 0.8, 0.2, 1),
+        left 0.8s cubic-bezier(0.2, 0.8, 0.2, 1),
+        width 0.8s cubic-bezier(0.2, 0.8, 0.2, 1),
+        height 0.8s cubic-bezier(0.2, 0.8, 0.2, 1),
+        transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
     will-change: top, left, width, height, transform;
     z-index: 10;
     overflow: hidden;
@@ -353,6 +353,11 @@ a {
     justify-content: space-between;
     opacity: 1;
     filter: grayscale(100%);
+}
+
+.trust-names {
+    display: contents;
+    /* Preserve original layout on desktop */
 }
 
 .features {
@@ -613,4 +618,135 @@ footer {
     .footer-grid {
         grid-template-columns: 1fr;
     }
+}
+
+/* Mobile Optimization */
+@media (max-width: 768px) {
+    :root {
+        --space-md: 1.5rem;
+        --space-lg: 3rem;
+        --space-xl: 5rem;
+    }
+
+    /* Navbar */
+    .nav-container {
+        padding: 0 var(--space-sm);
+        height: 70px;
+    }
+
+    .logo-text {
+        font-size: 1.2rem;
+    }
+
+    .nav-actions .btn {
+        padding: 0.5rem 0.8rem;
+        /* Smaller padding */
+        font-size: 0.75rem;
+        /* Smaller font */
+        min-width: auto;
+    }
+
+    /* Hide "Log in" on very small screens if needed, or keep it compact */
+    .nav-actions {
+        display: flex;
+        gap: var(--space-xs);
+        align-items: center;
+    }
+
+    /* Hero */
+    .hero {
+        padding-top: 90px;
+        /* 70px nav + 20px gap */
+        flex-direction: column;
+        display: block;
+        /* Switch to block to allow normal flow */
+    }
+
+    .hero-container {
+        grid-template-columns: 1fr;
+        gap: var(--space-md);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .hero-content {
+        padding-right: 0;
+        text-align: center;
+        margin-bottom: var(--space-md);
+    }
+
+    .hero-title {
+        font-size: 3rem;
+    }
+
+    .hero-subtitle {
+        margin: 0 auto var(--space-md);
+        font-size: 1.1rem;
+    }
+
+    /* Hero Visual */
+    .hero-visual-container {
+        width: 100%;
+        /* Ensure full width */
+        height: 400px;
+        /* Smaller height for mobile */
+        min-height: 400px;
+        margin-bottom: var(--space-md);
+    }
+
+    /* Trust Bar */
+    .trust-grid {
+        flex-direction: column;
+        gap: var(--space-sm);
+    }
+
+    .trust-label {
+        text-align: center;
+        width: 100%;
+        margin-bottom: var(--space-xs);
+    }
+
+    .trust-names {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: var(--space-md);
+    }
+
+    .trust-names span {
+        display: inline-block;
+    }
+
+    /* Bento Grid */
+    .bento-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .bento-item {
+        height: auto;
+        min-height: 250px;
+    }
+
+    /* Footer */
+    .footer-grid {
+        grid-template-columns: 1fr;
+        gap: var(--space-lg);
+        text-align: center;
+    }
+
+    .social-links {
+        justify-content: center;
+    }
+
+    .footer-brand p {
+        margin: var(--space-sm) auto var(--space-md);
+    }
+}
+
+@media (max-width: 480px) {
+    .hero-title {
+        font-size: 2.5rem;
+    }
+
+    /* Login button restored */
 }

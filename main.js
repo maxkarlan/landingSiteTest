@@ -39,10 +39,15 @@ const cards = Array.from(document.querySelectorAll('.canvas-card'));
 
 if (canvasContainer && cards.length > 0) {
 
-    const UNIT = 100;
+    // Dynamic Unit Size
+    function getUnitSize() {
+        return window.innerWidth < 768 ? 60 : 100;
+    }
+
     const GAP = 10;
 
     function getPos(uX, uY) {
+        const UNIT = getUnitSize();
         const pxX = uX * (UNIT + GAP);
         const pxY = uY * (UNIT + GAP);
         return {
@@ -103,15 +108,31 @@ if (canvasContainer && cards.length > 0) {
 
     function setCardShapes(inventory) {
         const shuffledShapes = [...inventory.shapes].sort(() => Math.random() - 0.5);
+        const UNIT = getUnitSize();
 
         cards.forEach((card, i) => {
             card.classList.remove('shape-square', 'shape-wide', 'shape-tall', 'shape-big');
             card.classList.add(shuffledShapes[i]);
             card.dataset.shape = shuffledShapes[i];
+
+            // Explicitly set size based on current UNIT
+            let w, h;
+            switch (shuffledShapes[i]) {
+                case 'shape-square': w = UNIT; h = UNIT; break;
+                case 'shape-wide': w = UNIT * 2 + GAP; h = UNIT; break;
+                case 'shape-tall': w = UNIT; h = UNIT * 2 + GAP; break;
+                case 'shape-big': w = UNIT * 2 + GAP; h = UNIT * 2 + GAP; break;
+            }
+            card.style.width = `${w}px`;
+            card.style.height = `${h}px`;
         });
     }
 
+    let isOrganized = false;
+    let autoCycleInterval;
+
     function randomizePositions() {
+        isOrganized = false;
         currentInventory = inventories[Math.floor(Math.random() * inventories.length)];
         setCardShapes(currentInventory);
 
@@ -151,6 +172,9 @@ if (canvasContainer && cards.length > 0) {
     }
 
     function organizePositions() {
+        isOrganized = true;
+        const UNIT = getUnitSize();
+
         const cardsByShape = {
             'shape-square': [],
             'shape-wide': [],
@@ -168,10 +192,10 @@ if (canvasContainer && cards.length > 0) {
 
         // Shape dimensions for bounding box calculation
         const shapeDims = {
-            'shape-square': { w: 100, h: 100 },
-            'shape-wide': { w: 210, h: 100 },
-            'shape-tall': { w: 100, h: 210 },
-            'shape-big': { w: 210, h: 210 }
+            'shape-square': { w: UNIT, h: UNIT },
+            'shape-wide': { w: UNIT * 2 + GAP, h: UNIT },
+            'shape-tall': { w: UNIT, h: UNIT * 2 + GAP },
+            'shape-big': { w: UNIT * 2 + GAP, h: UNIT * 2 + GAP }
         };
 
         // Calculate visual bounding box of the layout (using Top-Left coordinates)
@@ -214,15 +238,54 @@ if (canvasContainer && cards.length > 0) {
         console.log(`Organized: ${currentInventory.name}`);
     }
 
+    function toggleState() {
+        if (isOrganized) {
+            randomizePositions();
+        } else {
+            organizePositions();
+        }
+    }
+
+    function startAutoCycle() {
+        stopAutoCycle(); // Clear existing to be safe
+        autoCycleInterval = setInterval(() => {
+            toggleState();
+        }, 4000);
+    }
+
+    function stopAutoCycle() {
+        if (autoCycleInterval) {
+            clearInterval(autoCycleInterval);
+            autoCycleInterval = null;
+        }
+    }
+
     // Initial Setup
     randomizePositions();
+    startAutoCycle();
+
+    // Re-calculate on resize
+    window.addEventListener('resize', () => {
+        // Debounce or just re-run
+        randomizePositions();
+    });
 
     // Event Listeners
     canvasContainer.addEventListener('mouseenter', () => {
+        stopAutoCycle();
         organizePositions();
     });
 
     canvasContainer.addEventListener('mouseleave', () => {
         randomizePositions();
+        startAutoCycle();
+    });
+
+    // Tap/Click to toggle (Mobile & Desktop)
+    canvasContainer.addEventListener('click', () => {
+        stopAutoCycle();
+        toggleState();
+        // Restart cycle after interaction to keep it alive if they stop interacting
+        startAutoCycle();
     });
 }
