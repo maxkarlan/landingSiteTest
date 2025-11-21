@@ -264,10 +264,17 @@ if (canvasContainer && cards.length > 0) {
     randomizePositions();
     startAutoCycle();
 
-    // Re-calculate on resize
+    // Re-calculate on resize (only if width changes to avoid mobile scroll trigger)
+    let lastWidth = window.innerWidth;
+    let resizeTimeout;
     window.addEventListener('resize', () => {
-        // Debounce or just re-run
-        randomizePositions();
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(() => {
+            if (window.innerWidth !== lastWidth) {
+                lastWidth = window.innerWidth;
+                randomizePositions();
+            }
+        }, 300);
     });
 
     // Event Listeners
