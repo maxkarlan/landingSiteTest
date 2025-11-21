@@ -308,35 +308,40 @@ a {
 .card-text {
     /* background-color: #3B82F6; */
     /* background-color: #8A936A; */
-    background-color: #bd8787;
+    /* background-color: #bd8787; */
+    background-color: #C97F7C;
 }
 
 /* 2. Image Block - Red */
 .card-image {
     /* background-color: #EF4444; */
     /* background-color: #CB8D30; */
-    background-color: #cc9c52;
+    /* background-color: #cc9c52; */
+    background-color: #D1923E;
 }
 
 /* 3. Listed Block - Yellow */
 .card-listed {
     /* background-color: #EAB308; */
     /* background-color: #144357; */
-    background-color: #7a8f76;
+    /* background-color: #7a8f76; */
+    background-color: #6F8D68;
 }
 
 /* 4. Video Block - Green */
 .card-video {
     /* background-color: #22C55E; */
     /* background-color: #6C0A00; */
-    background-color: #637a8a;
+    /* background-color: #637a8a; */
+    background-color: #5B7D93;
 }
 
 /* 5. Tweet Block - Purple */
 .card-tweet-embed {
     /* background-color: #A855F7; */
     /* background-color: #602E5B; */
-    background-color: #967bb6;
+    /* background-color: #967bb6; */
+    background-color: #9D6EC2;
 }
 
 
