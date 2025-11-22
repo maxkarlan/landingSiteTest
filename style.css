@@ -754,7 +754,8 @@ footer {
 
     .trust-names span,
     .trust-names a {
-        display: inline-block;
+        display: inline-flex;
+        align-items: center;
     }
 
     /* Bento Grid */
