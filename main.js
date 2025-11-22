@@ -296,3 +296,64 @@ if (canvasContainer && cards.length > 0) {
         startAutoCycle();
     });
 }
+
+// Waitlist Form Handling
+const waitlistForm = document.getElementById('waitlist-form');
+const waitlistSuccess = document.getElementById('waitlist-success');
+
+if (waitlistForm && waitlistSuccess) {
+    waitlistForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        const emailInput = waitlistForm.querySelector('input[type="email"]');
+        const submitBtn = waitlistForm.querySelector('button[type="submit"]');
+        const email = emailInput.value;
+
+        // Disable button while submitting
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Joining...';
+
+        // TODO: Replace this URL with your deployed Google Apps Script Web App URL
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxtYCpHEWn4C1YKZM0FrJh558tl9lb6nOHP72ror1sGk6-X6rKRju4WySdoMEXwNp6Jtw/exec';
+
+        if (SCRIPT_URL === 'YOUR_GOOGLE_SCRIPT_WEB_APP_URL_HERE') {
+            console.warn('Google Script URL not set. Please deploy the script and update the URL in main.js');
+            // Simulate success for demo purposes if URL isn't set yet
+            setTimeout(() => {
+                document.getElementById('waitlist-initial').style.display = 'none';
+                waitlistSuccess.style.display = 'block';
+            }, 1000);
+            return;
+        }
+
+        // Send data to Google Sheets
+        fetch(SCRIPT_URL, {
+            method: 'POST',
+            mode: 'cors', // Changed to 'cors' since the server sends Access-Control-Allow-Origin: *
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `email=${encodeURIComponent(email)}&source=sienna_landing`
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.result === 'success') {
+                    document.getElementById('waitlist-initial').style.display = 'none';
+                    waitlistSuccess.style.display = 'block';
+                } else {
+                    throw new Error(data.message || 'Submission failed');
+                }
+            })
+            .catch(error => {
+                console.error('Error!', error.message);
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Try Again';
+                alert('Something went wrong. Please try again.');
+            });
+    });
+}
