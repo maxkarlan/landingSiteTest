@@ -357,12 +357,46 @@ a {
     display: flex;
     justify-content: space-between;
     opacity: 1;
-    filter: grayscale(100%);
 }
 
 .trust-names {
     display: contents;
     /* Preserve original layout on desktop */
+}
+
+.trust-names span,
+.trust-names a {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs);
+}
+
+.pfp-wrapper {
+    position: relative;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    overflow: hidden;
+    display: flex;
+    /* Removes extra space below img */
+    border: 2px solid transparent;
+    /* Prepare for hover border without layout shift */
+    transition: border-color 0.2s ease;
+}
+
+/* Only apply hover border to linked artists (inside <a> tags) */
+.trust-names a:hover .pfp-wrapper {
+    border-color: var(--theme-color-accent);
+}
+
+.artist-pfp {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.trust-names a:hover {
+    color: var(--theme-color-accent);
 }
 
 .features {
@@ -718,7 +752,8 @@ footer {
         gap: var(--space-md);
     }
 
-    .trust-names span {
+    .trust-names span,
+    .trust-names a {
         display: inline-block;
     }
 
