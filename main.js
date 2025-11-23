@@ -56,75 +56,199 @@ if (canvasContainer && cards.length > 0) {
         };
     }
 
-    // Define "Inventory Configs"
-    const inventories = [
-        {
-            name: "Standard Mix",
-            shapes: ['shape-tall', 'shape-wide', 'shape-wide', 'shape-square', 'shape-square'],
-            layout: [
-                { x: -2, y: -1, shape: 'shape-tall' },
-                { x: -1, y: -1, shape: 'shape-square' },
-                { x: -1, y: 0, shape: 'shape-square' },
-                { x: 0, y: -1, shape: 'shape-wide' },
-                { x: 0, y: 0, shape: 'shape-wide' }
-            ]
-        },
-        {
-            name: "Tall Towers",
-            shapes: ['shape-tall', 'shape-tall', 'shape-tall', 'shape-square', 'shape-square'],
-            layout: [
-                { x: -1.5, y: -1, shape: 'shape-tall' },
-                { x: -0.5, y: -1, shape: 'shape-tall' },
-                { x: 0.5, y: -1, shape: 'shape-tall' },
-                { x: 1.5, y: -1, shape: 'shape-square' },
-                { x: 1.5, y: 0, shape: 'shape-square' }
-            ]
-        },
-        {
-            name: "Wide Stack",
-            shapes: ['shape-wide', 'shape-wide', 'shape-wide', 'shape-square', 'shape-square'],
-            layout: [
-                { x: -1, y: -1.5, shape: 'shape-wide' },
-                { x: -1, y: -0.5, shape: 'shape-wide' },
-                { x: -1, y: 0.5, shape: 'shape-wide' },
-                { x: 1, y: -0.5, shape: 'shape-square' },
-                { x: 1, y: 0.5, shape: 'shape-square' }
-            ]
-        },
-        {
-            name: "The Big One",
-            shapes: ['shape-big', 'shape-square', 'shape-square', 'shape-square', 'shape-square'],
-            layout: [
-                { x: -1, y: -1, shape: 'shape-big' },
-                { x: -2, y: -1, shape: 'shape-square' },
-                { x: -2, y: 0, shape: 'shape-square' },
-                { x: 1, y: -1, shape: 'shape-square' },
-                { x: 1, y: 0, shape: 'shape-square' }
-            ]
-        }
-    ];
+    // Dynamic Layout Generator (Perfect Rectangles with Bitmask Optimization)
+    function generateRandomLayout() {
+        const shapeTypes = ['shape-square', 'shape-wide', 'shape-tall', 'shape-big'];
+        const shapeDims = {
+            'shape-square': { w: 1, h: 1 },
+            'shape-wide': { w: 2, h: 1 },
+            'shape-tall': { w: 1, h: 2 },
+            'shape-big': { w: 2, h: 2 }
+        };
 
-    let currentInventory = inventories[0];
+        // Precompute bitmasks for all shapes at all valid positions in a 4x4 grid
+        // Grid is represented as a 16-bit integer (0-15), row-major order.
+        // (0,0) is bit 0, (3,3) is bit 15.
+        const SHAPE_MASKS = {};
+
+        function getMask(w, h, x, y) {
+            let mask = 0;
+            for (let dy = 0; dy < h; dy++) {
+                for (let dx = 0; dx < w; dx++) {
+                    const bitIndex = (y + dy) * 4 + (x + dx);
+                    mask |= (1 << bitIndex);
+                }
+            }
+            return mask;
+        }
+
+        shapeTypes.forEach(type => {
+            SHAPE_MASKS[type] = [];
+            const { w, h } = shapeDims[type];
+            // Store masks for all possible top-left positions (x,y)
+            // Note: We compute for the full 4x4 grid.
+            // When solving for smaller WxH, we just ensure we don't pick positions outside WxH.
+            for (let y = 0; y <= 4 - h; y++) {
+                for (let x = 0; x <= 4 - w; x++) {
+                    SHAPE_MASKS[type].push({
+                        x, y,
+                        mask: getMask(w, h, x, y)
+                    });
+                }
+            }
+        });
+
+        // Helper: Check if a set of shapes can form a rectangle of size WxH
+        function solveTiling(shapes, W, H) {
+            // Target mask: The rectangle WxH must be filled.
+            // However, our bitmask system is always 4x4.
+            // So we define the "boundary" by only allowing positions within WxH.
+            // And we check if the final mask equals the mask of a WxH rectangle at (0,0).
+
+            // Sort shapes largest to smallest to speed up backtracking
+            const sortedShapes = [...shapes].sort((a, b) => {
+                const areaA = shapeDims[a].w * shapeDims[a].h;
+                const areaB = shapeDims[b].w * shapeDims[b].h;
+                return areaB - areaA;
+            });
+
+            const layout = []; // Stores {x, y, shape}
+
+            function backtrack(index, currentMask) {
+                if (index === sortedShapes.length) return true;
+
+                const shape = sortedShapes[index];
+                const { w, h } = shapeDims[shape];
+
+                // Try all valid positions for this shape within WxH
+                // We use the precomputed masks, but filter by W and H limits
+                const possibleMoves = SHAPE_MASKS[shape];
+
+                for (let i = 0; i < possibleMoves.length; i++) {
+                    const move = possibleMoves[i];
+
+                    // Check bounds for current target rectangle WxH
+                    if (move.x + w > W || move.y + h > H) continue;
+
+                    // Check collision using Bitwise AND
+                    if ((currentMask & move.mask) === 0) {
+                        // Place shape
+                        layout.push({ x: move.x, y: move.y, shape: shape });
+
+                        // Recurse with updated mask (Bitwise OR)
+                        if (backtrack(index + 1, currentMask | move.mask)) return true;
+
+                        // Backtrack
+                        layout.pop();
+                    }
+                }
+                return false;
+            }
+
+            if (backtrack(0, 0)) {
+                return layout;
+            }
+            return null;
+        }
+
+        let attempts = 0;
+        while (attempts < 5000) {
+            attempts++;
+
+            // 1. Pick 5 random shapes
+            const shapes = [];
+            let totalArea = 0;
+            for (let i = 0; i < 5; i++) {
+                const shape = shapeTypes[Math.floor(Math.random() * shapeTypes.length)];
+                shapes.push(shape);
+                totalArea += shapeDims[shape].w * shapeDims[shape].h;
+            }
+
+            // 2. Find valid rectangular dimensions for this area
+            // Possible areas: 5 to 20 (max 5*4=20, but max grid is 16)
+            // We only care if area <= 16
+            if (totalArea > 16) continue;
+
+            const validDims = [];
+            // Find factors of totalArea that fit in 4x4
+            for (let w = 1; w <= 4; w++) {
+                if (totalArea % w === 0) {
+                    const h = totalArea / w;
+                    if (h <= 4) {
+                        validDims.push({ w, h });
+                    }
+                }
+            }
+
+            if (validDims.length === 0) continue;
+
+            // Pick a random valid dimension
+            const dim = validDims[Math.floor(Math.random() * validDims.length)];
+
+            // 3. Try to tile
+            const resultLayout = solveTiling(shapes, dim.w, dim.h);
+
+            if (resultLayout) {
+                // Success!
+                // We need to return shapes in the order they were used in the layout?
+                // Actually, our layout array contains the shape name.
+                // But setCardShapes iterates through 'inventory.shapes'.
+                // And organizePositions iterates through 'inventory.layout'.
+                // We need to make sure the shapes list matches the layout list for consistency?
+                // Actually, setCardShapes just needs a list of 5 shapes.
+                // organizePositions groups by shape type.
+                // So as long as the counts match, it's fine.
+
+                // Extract shapes from the result layout to ensure exact match
+                const finalShapes = resultLayout.map(l => l.shape);
+
+                return {
+                    name: `Rectangular ${dim.w}x${dim.h}`,
+                    shapes: finalShapes,
+                    layout: resultLayout
+                };
+            }
+        }
+
+        // Fallback
+        return {
+            name: "Fallback Square",
+            shapes: ['shape-square', 'shape-square', 'shape-square', 'shape-square', 'shape-square'],
+            layout: [
+                { x: 0, y: 0, shape: 'shape-square' },
+                { x: 1, y: 0, shape: 'shape-square' },
+                { x: 2, y: 0, shape: 'shape-square' },
+                { x: 0, y: 1, shape: 'shape-square' },
+                { x: 1, y: 1, shape: 'shape-square' }
+            ]
+        };
+    }
+
+    let currentInventory = generateRandomLayout();
 
     function setCardShapes(inventory) {
-        const shuffledShapes = [...inventory.shapes].sort(() => Math.random() - 0.5);
+        // We use the shapes from the inventory to assign classes
+        // We need to make sure we have enough cards? We assume 5.
+        const shapes = inventory.shapes;
         const UNIT = getUnitSize();
 
         cards.forEach((card, i) => {
-            card.classList.remove('shape-square', 'shape-wide', 'shape-tall', 'shape-big');
-            card.classList.add(shuffledShapes[i]);
-            card.dataset.shape = shuffledShapes[i];
+            if (i < shapes.length) {
+                card.classList.remove('shape-square', 'shape-wide', 'shape-tall', 'shape-big');
+                card.classList.add(shapes[i]);
+                card.dataset.shape = shapes[i];
 
-            // Explicitly set size based on current UNIT
-            let w, h;
-            switch (shuffledShapes[i]) {
-                case 'shape-square': w = UNIT; h = UNIT; break;
-                case 'shape-wide': w = UNIT * 2 + GAP; h = UNIT; break;
-                case 'shape-tall': w = UNIT; h = UNIT * 2 + GAP; break;
-                case 'shape-big': w = UNIT * 2 + GAP; h = UNIT * 2 + GAP; break;
+                // Explicitly set size based on current UNIT
+                let w, h;
+                switch (shapes[i]) {
+                    case 'shape-square': w = UNIT; h = UNIT; break;
+                    case 'shape-wide': w = UNIT * 2 + GAP; h = UNIT; break;
+                    case 'shape-tall': w = UNIT; h = UNIT * 2 + GAP; break;
+                    case 'shape-big': w = UNIT * 2 + GAP; h = UNIT * 2 + GAP; break;
+                }
+                card.style.width = `${w}px`;
+                card.style.height = `${h}px`;
             }
-            card.style.width = `${w}px`;
-            card.style.height = `${h}px`;
         });
     }
 
@@ -133,7 +257,8 @@ if (canvasContainer && cards.length > 0) {
 
     function randomizePositions() {
         isOrganized = false;
-        currentInventory = inventories[Math.floor(Math.random() * inventories.length)];
+        // Generate a NEW layout every time we scatter
+        currentInventory = generateRandomLayout();
         setCardShapes(currentInventory);
 
         // Define 5 zones to ensure distribution (Top-Left, Top-Right, Bottom-Left, Bottom-Right, Center)
