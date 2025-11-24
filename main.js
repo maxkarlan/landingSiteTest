@@ -46,15 +46,7 @@ if (canvasContainer && cards.length > 0) {
 
     const GAP = 10;
 
-    function getPos(uX, uY) {
-        const UNIT = getUnitSize();
-        const pxX = uX * (UNIT + GAP);
-        const pxY = uY * (UNIT + GAP);
-        return {
-            left: `calc(50% + ${pxX}px)`,
-            top: `calc(50% + ${pxY}px)`
-        };
-    }
+
 
     // Dynamic Layout Generator (Perfect Rectangles with Bitmask Optimization)
     function generateRandomLayout() {
@@ -305,7 +297,7 @@ if (canvasContainer && cards.length > 0) {
             card.style.zIndex = Math.floor(Math.random() * 10);
         });
 
-        console.log(`Scattered with: ${currentInventory.name}`);
+
     }
 
     function organizePositions() {
@@ -372,7 +364,7 @@ if (canvasContainer && cards.length > 0) {
             }
         });
 
-        console.log(`Organized: ${currentInventory.name}`);
+
     }
 
     function toggleState() {
@@ -453,15 +445,7 @@ if (waitlistForm && waitlistSuccess) {
         // TODO: Replace this URL with your deployed Google Apps Script Web App URL
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxtYCpHEWn4C1YKZM0FrJh558tl9lb6nOHP72ror1sGk6-X6rKRju4WySdoMEXwNp6Jtw/exec';
 
-        if (SCRIPT_URL === 'YOUR_GOOGLE_SCRIPT_WEB_APP_URL_HERE') {
-            console.warn('Google Script URL not set. Please deploy the script and update the URL in main.js');
-            // Simulate success for demo purposes if URL isn't set yet
-            setTimeout(() => {
-                document.getElementById('waitlist-initial').style.display = 'none';
-                waitlistSuccess.style.display = 'block';
-            }, 1000);
-            return;
-        }
+
 
         // Send data to Google Sheets
         fetch(SCRIPT_URL, {
