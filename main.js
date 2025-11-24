@@ -190,17 +190,29 @@ if (canvasContainer && cards.length > 0) {
 
             if (resultLayout) {
                 // Success!
-                // We need to return shapes in the order they were used in the layout?
-                // Actually, our layout array contains the shape name.
-                // But setCardShapes iterates through 'inventory.shapes'.
-                // And organizePositions iterates through 'inventory.layout'.
-                // We need to make sure the shapes list matches the layout list for consistency?
-                // Actually, setCardShapes just needs a list of 5 shapes.
-                // organizePositions groups by shape type.
-                // So as long as the counts match, it's fine.
+
+                // Randomly flip the layout to simulate packing from different corners
+                // Since the solver always packs Top-Left to Bottom-Right, big shapes tend to be at TL.
+                // Flipping allows them to be at TR, BL, or BR.
+                const flipX = Math.random() > 0.5;
+                const flipY = Math.random() > 0.5;
+
+                if (flipX || flipY) {
+                    resultLayout.forEach(item => {
+                        const { w, h } = shapeDims[item.shape];
+                        if (flipX) {
+                            item.x = dim.w - item.x - w;
+                        }
+                        if (flipY) {
+                            item.y = dim.h - item.y - h;
+                        }
+                    });
+                }
 
                 // Extract shapes from the result layout to ensure exact match
-                const finalShapes = resultLayout.map(l => l.shape);
+                // We shuffle them to ensure that specific cards (like card[0]) don't always get the big shapes
+                // which happens because the solver sorts by size.
+                const finalShapes = resultLayout.map(l => l.shape).sort(() => Math.random() - 0.5);
 
                 return {
                     name: `Rectangular ${dim.w}x${dim.h}`,
