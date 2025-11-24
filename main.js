@@ -408,7 +408,7 @@ if (canvasContainer && cards.length > 0) {
 
     // Event Listeners
     canvasContainer.addEventListener('mouseenter', () => {
-        stopAutoCycle();
+        // stopAutoCycle(); // Allow cycle to continue
         organizePositions();
     });
 
