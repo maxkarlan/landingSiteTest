@@ -55,6 +55,10 @@
     box-sizing: border-box;
 }
 
+html {
+    scroll-behavior: smooth;
+}
+
 body {
     background-color: var(--theme-color-bg-0);
     color: var(--theme-color-text-0);
@@ -497,11 +501,26 @@ a {
     background: var(--theme-color-bg-1);
     border-top: 1px solid var(--theme-color-border-1);
     text-align: center;
+
+    /* Centering logic */
+    scroll-margin-top: 80px;
+    min-height: calc(100vh - 80px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
 .waitlist-content {
     max-width: 600px;
     margin: 0 auto;
+}
+
+.waitlist-logo {
+    height: 64px;
+    width: auto;
+    margin-bottom: var(--space-md);
+    opacity: 0.9;
 }
 
 .waitlist-content h2 {
@@ -539,6 +558,11 @@ a {
 @media (max-width: 768px) {
     .faq-grid {
         grid-template-columns: 1fr;
+    }
+
+    .waitlist-section {
+        scroll-margin-top: 70px;
+        min-height: calc(100vh - 70px);
     }
 
     .waitlist-form {
